@@ -31,7 +31,7 @@
 |----|-------|-------|
 |Java Runtime|JDK 21+|JDK17+|
 |Spring Boot|3.4.2+|-|
-|数据库>|PostgreSQL 15|MySQL 8.0+|
+|数据库|PostgreSQL 15|MySQL 8.0+|
 |缓存|Redis 5.0+|-|
 
 > 当前项目使用云服务AI识别消息，默认使用【阿里云百炼应用】，
