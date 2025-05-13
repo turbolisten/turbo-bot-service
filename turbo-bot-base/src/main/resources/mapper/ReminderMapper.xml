@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.turbo.bot.base.module.reminder.ReminderDao">
+
+    <!-- 根据处理状态查询 -->
+    <select id="queryByHandleFlag"
+            resultType="cn.turbo.bot.base.module.reminder.domain.ReminderEntity">
+        SELECT *
+        FROM t_reminder
+        WHERE
+        <if test="startReminderId != null">
+            reminder_id &gt; #{startReminderId}
+            AND
+        </if>
+        handle_flag = #{handleFlag}
+        AND reminder_time &lt;= CAST(#{maxTime} AS timestamp)
+        LIMIT #{limit}
+    </select>
+
+    <!-- 根据 botid 用户id 群聊id 查询预约次数 -->
+    <select id="countByBotIdAndUserWxIdAndRoomId" resultType="java.lang.Integer">
+        SELECT COUNT(*)
+        FROM t_reminder
+        WHERE bot_id = #{botId}
+        AND user_wx_id = #{userWxId}
+          <choose>
+              <when test="roomId != null and roomId !='' ">
+                  AND room_id = #{roomId}
+              </when>
+                <otherwise>
+                  AND room_id = ''
+                </otherwise>
+          </choose>
+        AND handle_flag = #{handleFlag}
+    </select>
+
+</mapper>
