@@ -33,8 +33,7 @@ public class NewsZhiHuApi {
      * @return
      */
     public List<NewsZhiHuDTO> queryHot() {
-        // 这个 limit 不起作用
-        String url = "https://www.zhihu.com/api/v3/feed/topstory/hot-lists/total?limit=10&desktop=true";
+        String url = "https://www.zhihu.com/api/v3/feed/topstory/hot-list-web?limit=10&desktop=true";
         String res = restTemplate.getForObject(url, String.class);
         if (StrUtil.isBlank(res)) {
             log.info("query zhi-hu hot err");
@@ -47,15 +46,12 @@ public class NewsZhiHuApi {
         for (int i = 0; i < size; i++) {
             JSONObject jsonObject = array.getJSONObject(i);
             JSONObject target = jsonObject.getJSONObject("target");
-            String id = target.getString("id");
-            String title = target.getString("title");
+            String title = target.getJSONObject("title_area").getString("text");
+            String link = target.getJSONObject("link").getString("url");
 
             NewsZhiHuDTO zhiHuDTO = new NewsZhiHuDTO();
-            zhiHuDTO.setId(id);
             zhiHuDTO.setTitle(title);
-            // 处理拼接详情 url
-            String detailUrl = "https://www.zhihu.com/question/" + id;
-            zhiHuDTO.setUrl(detailUrl);
+            zhiHuDTO.setUrl(link);
             list.add(zhiHuDTO);
         }
         return list;

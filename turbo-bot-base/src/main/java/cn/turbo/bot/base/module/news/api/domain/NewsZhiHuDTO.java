@@ -11,8 +11,6 @@ import lombok.Data;
 @Data
 public class NewsZhiHuDTO {
 
-    private String id;
-
     private String title;
 
     private String url;
