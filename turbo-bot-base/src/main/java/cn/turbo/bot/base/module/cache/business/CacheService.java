@@ -1,21 +1,17 @@
 package cn.turbo.bot.base.module.cache.business;
 
 import cn.hutool.core.collection.CollUtil;
-import cn.turbo.bot.base.common.RedisConst;
 import cn.turbo.bot.base.config.env.SystemEnvDTO;
 import cn.turbo.bot.base.module.cache.CacheManager;
-import cn.turbo.bot.base.util.RedisService;
 import cn.turbo.bot.base.util.SmartEnumUtil;
 import cn.turbo.bot.base.util.SmartIpUtil;
 import com.alibaba.fastjson2.JSON;
-import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
-import org.redisson.api.listener.MessageListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
-import javax.annotation.PostConstruct;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -41,30 +37,6 @@ public class CacheService {
 
     @Autowired
     private SystemEnvDTO systemEnv;
-
-    @Autowired
-    private RedisService redisService;
-
-    /**
-     * 初始化 用于缓存刷新的 redis 订阅消息监听
-     */
-    @PostConstruct
-    public void initCacheReloadListener() {
-        redisService.addTopicListener(RedisConst.Topic.CACHE_TOPIC, new CacheReloadListener());
-        log.info("========== cache service init reload listener ==========");
-    }
-
-    /**
-     * redis 订阅消息监听 处理缓存清理
-     */
-    private class CacheReloadListener implements MessageListener<String> {
-
-        @Override
-        public void onMessage(CharSequence channel, String msg) {
-            log.info("cache service CacheReloadListener->{}", msg);
-            remove4Reload(msg);
-        }
-    }
 
     /**
      * 手动放入缓存
@@ -227,7 +199,7 @@ public class CacheService {
         cacheClear.setCacheBusinessList(businessList);
         cacheClear.setCacheKeyList(cacheKeyList);
         String arg = JSON.toJSONString(cacheClear);
-        redisService.sendTopicMsg(RedisConst.Topic.CACHE_TOPIC, arg);
+        //redisService.sendTopicMsg(RedisConst.Topic.CACHE_TOPIC, arg);
     }
 
     public void remove4Reload(String arg) {

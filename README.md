@@ -42,11 +42,8 @@
 |----|-------|-------|
 |Java Runtime|JDK 21+|JDK17+|
 |Spring Boot|3.4.2+|-|
-|数据库|PostgreSQL 15|MySQL 8.0+|
-|缓存|Redis 5.0+|-|
 
-> 当前项目使用云服务AI识别消息，默认使用【阿里云百炼应用】，
-可按需自行移除或替换其他AI服务（如：百度、硅基流动、豆包等）
+> 🚀 <font color="#FF0000">当前分支为【快速体验版】，更多bot功能演示，请参考【主分支】代码 [main](https://github.com/turbolisten/turbo-bot-service/tree/main)</font>
 
 ## 项目说明
 
@@ -58,23 +55,27 @@
 
 ## 初始化步骤
 
-**1、数据库准备**
-```sql
--- 执行初始化脚本
-turbo-bot-base/resources/sql/init.sql
+**1、配置文件调整**
 
--- 配置微信机器人ID
-UPDATE t_wx_bot SET wx_id = 'your_wxid';
+主要配置：
+
+```bash
+
+######################### wx bot ##################
+# TODO 配置 微信账号
+wx-bot.wx-id=xxxx
+wx-bot.name=测试账号
+
+# TODO 配置 服务端
+wx-bot.server.host=127.0.0.1:10086
+
 ```
 
-**2、配置文件调整**
-
->  当前项目配置文件分为 dev、prod 两个配置。默认dev环境，按需自行配置和切换。
-需要自行修改配置文件 resources/base.properties 中的数据库、redis、服务端连接。
-其他的一些邮件、AI服务key等，为了方便就直接写在了代码常量中，
+>  当前项目配置文件分为 dev、prod 两个配置。默认dev环境，按需自行配置和切换。<br/>
+其他的一些邮件、AI服务key等，为了方便就直接写在了代码常量中<br/>
 全局搜索：【TODO 配置】，就能看到配置项，按需自行修改。
 
-**3、 编译打包**
+**2、 编译打包**
 
 ```bash
 # 开发环境打包

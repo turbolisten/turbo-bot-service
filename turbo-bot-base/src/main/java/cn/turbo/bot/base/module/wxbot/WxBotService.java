@@ -1,19 +1,20 @@
 package cn.turbo.bot.base.module.wxbot;
 
 import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.util.RandomUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.system.SystemUtil;
 import cn.turbo.bot.base.module.cache.business.CacheBusinessEnum;
 import cn.turbo.bot.base.module.cache.business.CacheService;
-import cn.turbo.bot.base.module.config.ConfigService;
+import cn.turbo.bot.base.module.wxbot.api.WxBotApi;
 import cn.turbo.bot.base.module.wxbot.api.domain.WxBotSendTextMsgDTO;
 import cn.turbo.bot.base.module.wxbot.basic.constant.WxEmojiEnum;
 import cn.turbo.bot.base.module.wxbot.basic.domain.WxBotEntity;
 import cn.turbo.bot.base.util.SmartLocalDateUtil;
+import com.google.common.collect.Lists;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -21,7 +22,6 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.concurrent.TimeUnit;
 
 /**
  * wx bot
@@ -34,13 +34,13 @@ import java.util.concurrent.TimeUnit;
 public class WxBotService implements CommandLineRunner {
 
     @Autowired
-    private WxBotDao wxBotDao;
+    private WxBotApi wxBotApi;
 
-    @Autowired
-    private ConfigService cconfigService;
+    @Value("${wx-bot.wx-id}")
+    private String wxId;
 
-    @Autowired
-    private WxBotMsgSendService wxBotMsgSendService;
+    @Value("${wx-bot.name}")
+    private String botName;
 
     @Override
     public void run(String... args) {
@@ -51,7 +51,12 @@ public class WxBotService implements CommandLineRunner {
 
     public List<WxBotEntity> queryAll() {
         return CacheService.query(CacheBusinessEnum.WX_BOT, null,
-                                  (id) -> wxBotDao.selectList(null));
+                                  (id) -> {
+                                      WxBotEntity wxBotEntity = new WxBotEntity();
+                                      wxBotEntity.setBotWxId(wxId);
+                                      wxBotEntity.setBotName(botName);
+                                      return Lists.newArrayList(wxBotEntity);
+                                  });
     }
 
     public WxBotEntity getFirstWxBot() {
@@ -66,27 +71,9 @@ public class WxBotService implements CommandLineRunner {
         return optional.get();
     }
 
-    public WxBotEntity getWxBot(Integer botId) {
-        Optional<WxBotEntity> optional = this.queryAll().stream().filter(e -> Objects.equals(e.getBotId(), botId)).findFirst();
-        if (optional.isEmpty()) {
-            throw new RuntimeException("not find wx bot: " + botId);
-        }
-        return optional.get();
-    }
-
-    /**
-     * 向开发者发送提醒消息
-     *
-     * @param content
-     */
     public void sendDevAlertMsg(String content) {
-        WxBotEntity botEntity = this.queryAll().get(0);
-        this.sendDevAlertMsg(botEntity.getBotWxId(), content, true);
-    }
-
-    public void sendDevAlertMsg(String content, boolean realTime) {
-        WxBotEntity botEntity = this.queryAll().get(0);
-        this.sendDevAlertMsg(botEntity.getBotWxId(), content, realTime);
+        WxBotEntity botEntity = this.getFirstWxBot();
+        this.sendDevAlertMsg(botEntity.getBotWxId(), content);
     }
 
     /**
@@ -94,11 +81,10 @@ public class WxBotService implements CommandLineRunner {
      *
      * @param botWxId
      * @param content
-     * @param realTime
      */
-    public void sendDevAlertMsg(String botWxId, String content, boolean realTime) {
+    public void sendDevAlertMsg(String botWxId, String content) {
         // 默认发到第一个id
-        String devWxId = cconfigService.queryDevWxIdList().get(0);
+        String devWxId = this.getFirstWxBot().getBotWxId();
 
         // send bot msg
         content = StrUtil.format("{}【系统消息】{}\n{}\n{}",
@@ -111,13 +97,7 @@ public class WxBotService implements CommandLineRunner {
         msgDTO.setToWxId(devWxId);
         //sendTextMsgDTO.setAtUserList(null);
         msgDTO.setContent(content);
-
-        if (realTime) {
-            wxBotMsgSendService.sendTextMsg(msgDTO);
-        } else {
-            // 避免微信风控 随机延迟时间
-            wxBotMsgSendService.sendTextMsg(msgDTO, RandomUtil.randomLong(50, 1000), TimeUnit.SECONDS);
-        }
+        wxBotApi.sendTextMsg(msgDTO);
     }
 
     /**
@@ -128,7 +108,7 @@ public class WxBotService implements CommandLineRunner {
     public void sendStatusTask() {
         String runtimeInfo = SystemUtil.getRuntimeInfo().toString();
         String content = StrUtil.format("{}", runtimeInfo);
-        this.sendDevAlertMsg(content, false);
+        this.sendDevAlertMsg(content);
     }
 
     public static void main(String[] args) {

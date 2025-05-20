@@ -20,13 +20,8 @@ public enum CacheBusinessEnum implements BaseEnum, CacheModule {
 
     SYSTEM_CONFIG(CacheExpirePolicyEnum.EXPIRE_AFTER_WRITE, 300, "系统配置"),
 
-    USER(CacheExpirePolicyEnum.EXPIRE_AFTER_WRITE, 3600, "用户信息缓存"),
-
     WX_BOT(CacheExpirePolicyEnum.NEVER_EXPIRE, 1800, "wx bot"),
 
-    CHAT_NUM_CACHE(CacheExpirePolicyEnum.EXPIRE_AFTER_WRITE, 86400, "对话计数缓存"),
-
-    RATE_LIMITER(CacheExpirePolicyEnum.EXPIRE_AFTER_WRITE, 3550, "限流器缓存"),
     ;
 
     private final CacheExpirePolicyEnum expirePolicy;

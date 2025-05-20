@@ -25,11 +25,6 @@ public class WxBotMsgPacketDTO {
     @JsonProperty("CurrentWxid")
     private String currentWxId;
 
-    /**
-     * bot id 自己添加的字段
-     */
-    private Integer botId;
-
     @Data
     public static class CurrentPacketDTO {
 
