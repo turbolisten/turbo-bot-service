@@ -48,6 +48,10 @@
 > 当前项目使用云服务AI识别消息，默认使用【阿里云百炼应用】，
 可按需自行移除或替换其他AI服务（如：百度、硅基流动、豆包等）
 
+> 🚀 <font color="#FF0000">如果想【快速体验】，忽略环境搭建。可以切换使用分支 [slim](https://github.com/turbolisten/turbo-bot-service/tree/slim)</font><br/>
+只需配置`base.properties`中WxBot相关参数， 然后启动 `WXApplication`<br/>
+即可接收wx消息，并打印到控制台，可自行编写业务处理逻辑。
+
 ## 项目说明
 
 |模块|功能说明|
